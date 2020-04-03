@@ -1,0 +1,1 @@
+distance between two nodes (12 and 6) is :9999
