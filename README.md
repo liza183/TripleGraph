@@ -109,5 +109,4 @@ Elapsed Time: 0.0217940807343 seconds.
 * backend setup more flexible (like port number etc.)
 * remove the reason to init the graph
 * remove cray code and use SPARQLWrapper instead
-* The current version has a limitation of keeping only one graph in a triplestore. 
-* 
+* The current version has a limitation of keeping only one graph in a triplestore.
