@@ -27,5 +27,5 @@ if __name__ == '__main__':
     #gdb.edgelist_loader(edgeListFilePath, bidirectional = True)
 
     gdb.clear_graph()
-    edgeListFilePath="../data/dblp/com-dblp.ungraph.txt"
+    edgeListFilePath="data/dblp/com-dblp.ungraph.txt"
     gdb.edgelist_loader(edgeListFilePath, bidirectional = True)

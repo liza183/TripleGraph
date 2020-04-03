@@ -3,41 +3,36 @@
 * GraphEureka is a graph processing toolkit for creating, manipulating, and analyzing large scale graphs, which uses a JENA triple store as the system's internal data processing engine. 
 
 # Main functionalities:
+
 * Compatible with JENA Fuseki
+    * Although primarily developed for Cray's Urika hosted at the Department of Energy's Oak Ridge National Laboratory, this open source version works on Apache Jena triplestore. 
+
 * Compatible with Cray Urika-GD (Graph processing appliance)
-* JSON/edgelist Loader
-* Both Homogeneous/Heterogeneous Graph (Property Graph) supported
-* Node/Edge retrieval and manipulation
+    * not supported by open-source version
+
+* Data import tool for JSON, edgelist formatted graph data
+* Both homogeneous & property graph are supported
+* Node/edge retrieval and manipulation
 * Path finding
-* Pregel-like Abstracted Graph Processing Operations
+* Pregel-like abstracted graph processing operations
     * Aggregate Neighbor Labels
     * Label Propagate
-* Graph algorithms
+* Pre-implemented Graph algorithms
     * PageRank/Personalized PageRank
     * Single Source Shortest Path/Multi Source Shortest Path
     * Connected Component
     * Eccentricity
     * Peer Pressure Clustering
 
-# Dependencies
-
-* easy_install requests
-* easy_install rdflib
-
 # Releases
 
-* The current version is experimental.
+* The current version is experimental version.
 
 # Requirements
 
 * JENA Fuseki1 or compatable triplestore servers
-    * For download : http://jena.apache.org/documentation/serving_data/#download-fuseki1
 
-# How to run
-
-* Run the Fuseki server (or a compatable triplestore server) 
-    * 8G or more memory for java heap space is highly recommended
-    * $ java -Xmx12G -jar fuseki-server.jar --update --mem /ds &
+# Example
 
 * Run GraphEureka (please see the source code for more details)
 
@@ -105,6 +100,14 @@ Elapsed Time: 0.0217940807343 seconds.
  - msg: 15 results written in file: result/pr_1427809439.74.txt
 >>>
 ```
-# A note from the developer
 
-* The current version has a limitation of supporting only one graph in the database.
+# Things that need to be done before public release
+
+* Very simple performance analysis vs. network X
+* pip installation or simpler installation process
+* explanation about back-end
+* backend setup more flexible (like port number etc.)
+* remove the reason to init the graph
+* remove cray code and use SPARQLWrapper instead
+* The current version has a limitation of keeping only one graph in a triplestore. 
+* 

@@ -1,5 +1,5 @@
 # This project is experimental
-# Property Graph Programming Interface for Triplestores
+# Property Graph Programming Interface using/for Triplestores
 # Programmed by Sangkeun Lee (leesangkeun@gmail.com)
 
 from PLUS import FusekiLogin
@@ -550,10 +550,10 @@ class GraphDatabase:
                 
                 lineNo+=1
 
-                fromNodeID =  parsedLine[0]
-                toNodeID =  parsedLine[1]
+                fromnode =  parsedLine[0]
+                tonode =  parsedLine[1]
                 
-                batchQuery+= self.add_edge(fromNodeID, toNodeID, edgeType = None, fromNodeType=None, toNodeType=None, properties=None, execute = False, create_node=False, bidirectional = False, noReturn = True, gdbinfo_update = False)['query']
+                batchQuery+= self.add_edge(fromnode, tonode, edgeType = None, fromNodeType=None, toNodeType=None, properties=None, execute = False, create_node=False, bidirectional = False, noReturn = True, gdbinfo_update = False)['query']
             
         if batchQuery!="":    
 
@@ -607,9 +607,9 @@ class GraphDatabase:
 
             properties = ast.literal_eval(line)
             nodeType =  properties.pop("_type", None)
-            nodeID =  properties.pop("_id", None)
+            node =  properties.pop("_id", None)
             
-            batchQuery+= self.add_node(nodeID, nodeType, properties, execute=False, gdbinfo_update = False)
+            batchQuery+= self.add_node(node, nodeType, properties, execute=False, gdbinfo_update = False)
             
         if batchQuery!="":    
             try:
@@ -655,11 +655,11 @@ class GraphDatabase:
             lineNo+=1
 
             properties = ast.literal_eval(line)
-            fromNodeID =  properties.pop("_from_id", None)
-            toNodeID =  properties.pop("_to_id", None)
+            fromnode =  properties.pop("_from_id", None)
+            tonode =  properties.pop("_to_id", None)
             edgeType = properties.pop("_type", None)
 
-            batchQuery+= self.add_edge(fromNodeID, toNodeID, edgeType=edgeType, fromNodeType=None, toNodeType=None, properties=properties, execute = False, create_node=False, noReturn = True, gdbinfo_update = False)['query']
+            batchQuery+= self.add_edge(fromnode, tonode, edgeType=edgeType, fromNodeType=None, toNodeType=None, properties=properties, execute = False, create_node=False, noReturn = True, gdbinfo_update = False)['query']
             
         f.close()
         
@@ -701,7 +701,7 @@ class GraphDatabase:
         DROP GRAPH <gdb:label> ;
         """
 
-        #print ADD_A_NODE_QUERY.format(nodeID)
+        #print ADD_A_NODE_QUERY.format(node)
         self.connection.urika.update(self.name, clear_graph_DB)
 
         print " - msg: Labels cleared ..."
@@ -715,10 +715,10 @@ class GraphDatabase:
         DROP GRAPH <gdb:topology> ;
         DROP GRAPH <gdb:info> ;
         DROP GRAPH <gdb:tmp> ;
-        INSERT DATA {GRAPH <gdb:info> {<gdb:edgeIDCounter> <rel:equals> 0}};
+        INSERT DATA {GRAPH <gdb:info> {<gdb:edgecounter> <rel:equals> 0}};
         """
 
-        #print ADD_A_NODE_QUERY.format(nodeID)
+        #print ADD_A_NODE_QUERY.format(node)
         self.connection.urika.update(self.name, clear_graph_DB)
 
         print " - msg: Graph cleared ..."
@@ -729,35 +729,35 @@ class GraphDatabase:
         self.connection = FusekiLogin('ds', 'solarpy')
         self.name = "gdb"
 
-    def add_node(self, nodeID, nodeType=None, properties = None, execute = True, gdbinfo_update = True):
+    def add_node(self, node, nodeType=None, properties = None, execute = True, gdbinfo_update = True):
         
         ADD_A_NODE_QUERY = """
         
         DELETE {{
-                GRAPH <gdb:vlist> {{<nodeID:{0}> ?p ?o}} 
+                GRAPH <gdb:vlist> {{<node:{0}> ?p ?o}} 
             }}
         WHERE {{
-                GRAPH <gdb:vlist> {{<nodeID:{0}> ?p ?o}}
+                GRAPH <gdb:vlist> {{<node:{0}> ?p ?o}}
             }}
         ;
 
         INSERT {{ GRAPH <gdb:vlist> 
             
-            {{<nodeID:{0}> <rel:hasNodeType> <nodeType:{1}>}}}} 
+            {{<node:{0}> <rel:hasNodeType> <nodeType:{1}>}}}} 
             where {{
 
             }};
 
         """
-        #print ADD_A_NODE_QUERY.format(nodeID)
-        nodeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', nodeID).strip()
-        queryToExecute = ADD_A_NODE_QUERY.format(nodeID, nodeType)
+        #print ADD_A_NODE_QUERY.format(node)
+        node = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', node).strip()
+        queryToExecute = ADD_A_NODE_QUERY.format(node, nodeType)
 
         if execute == True:
-            self.connection.urika.update(self.name, ADD_A_NODE_QUERY.format(nodeID, nodeType))
+            self.connection.urika.update(self.name, ADD_A_NODE_QUERY.format(node, nodeType))
 
         if properties != None:
-            queryToExecute+= self.add_node_properties(nodeID, properties, execute)
+            queryToExecute+= self.add_node_properties(node, properties, execute)
 
         if gdbinfo_update == True:
             self.update_outdegree_info()
@@ -765,31 +765,31 @@ class GraphDatabase:
 
         return queryToExecute
 
-    def add_node_property(self, nodeID, key, val, forceToString = False, execute = True):
+    def add_node_property(self, node, key, val, forceToString = False, execute = True):
         
         ADD_A_PROPERTY_QUERY = """
             DELETE  {{
-                GRAPH <gdb:vlist> {{<nodeID:{0}>  <property:{1}> ?any.}}
+                GRAPH <gdb:vlist> {{<node:{0}>  <property:{1}> ?any.}}
             }} WHERE 
             {{
-                GRAPH <gdb:vlist> {{<nodeID:{0}>  <property:{1}> ?any.}}
+                GRAPH <gdb:vlist> {{<node:{0}>  <property:{1}> ?any.}}
             }}
             ;
             INSERT {{
-                GRAPH <gdb:vlist> {{<nodeID:{0}>  <property:{1}> {2}.}}
+                GRAPH <gdb:vlist> {{<node:{0}>  <property:{1}> {2}.}}
             }}
             WHERE {{
                
             }};
 
         """
-        nodeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', nodeID)
+        node = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', node)
         val = re.sub('[^a-zA-Z0-9\\-:.\\s]', '', str(val))
 
         if self.is_number(val)==False or forceToString==True:
             val = "\""+str(val)+"\""
 
-        queryToExecute = ADD_A_PROPERTY_QUERY.format(nodeID, key, val)
+        queryToExecute = ADD_A_PROPERTY_QUERY.format(node, key, val)
         
         if execute==True:
             self.connection.urika.update(self.name, queryToExecute)
@@ -831,57 +831,57 @@ class GraphDatabase:
 
         return queryToExecute
 
-    def add_node_label(self, nodeID, key, val, forceToString = False, execute = True):
+    def add_node_label(self, node, key, val, forceToString = False, execute = True):
                 
         ADD_LABEL_QUERY = """
             DELETE  {{
-                GRAPH <gdb:label> {{<nodeID:{0}>  <label:{1}> ?any.}}
+                GRAPH <gdb:label> {{<node:{0}>  <label:{1}> ?any.}}
             }} WHERE 
             {{
-                GRAPH <gdb:label> {{<nodeID:{0}>  <label:{1}> ?any.}}
+                GRAPH <gdb:label> {{<node:{0}>  <label:{1}> ?any.}}
             }}
             ;
             INSERT {{
-                GRAPH <gdb:label> {{<nodeID:{0}>  <label:{1}> {2}.}}
+                GRAPH <gdb:label> {{<node:{0}>  <label:{1}> {2}.}}
             }}
             WHERE {{
                
             }};
 
         """
-        nodeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', nodeID)
+        node = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', node)
         val = re.sub('[^a-zA-Z0-9\\-:.\\s]', '', str(val))
 
         if self.is_number(val)==False or forceToString==True:
             val = "\""+str(val)+"\""
 
-        queryToExecute = ADD_LABEL_QUERY.format(nodeID, key, val)
+        queryToExecute = ADD_LABEL_QUERY.format(node, key, val)
         
         if execute==True:
             self.connection.urika.update(self.name, queryToExecute)
 
         return queryToExecute
 
-    def update_outdegree_info(self, nodeID):
+    def update_outdegree_info(self, node):
         QUERY_OUTDEGREE_UPDATE = """
 
-        select (<nodeID:{0}> as ?s) (<rel:hasOutDegree> as ?rel) (count(*) as ?outdegree) 
-        {{graph <gdb:topology> {{<nodeID:{0}> ?p ?o}}}}
+        select (<node:{0}> as ?s) (<rel:hasOutDegree> as ?rel) (count(*) as ?outdegree) 
+        {{graph <gdb:topology> {{<node:{0}> ?p ?o}}}}
 
         """
-        nodeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', nodeID)
-        queryToExecute = QUERY_OUTDEGREE_UPDATE.format(nodeID)        
+        node = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', node)
+        queryToExecute = QUERY_OUTDEGREE_UPDATE.format(node)        
         self.connection.urika.update(self.name, queryToExecute)
 
-    def update_indegree_info(self, nodeID):
+    def update_indegree_info(self, node):
         QUERY_INDEGREE_UPDATE = """
 
-        select (<nodeID:{0}> as ?o) (<rel:hasInDegree> as ?rel) (count(*) as ?indegree) 
-        {{graph <gdb:topology> {{?s ?p <nodeID:{0}>}}}}
+        select (<node:{0}> as ?o) (<rel:hasInDegree> as ?rel) (count(*) as ?indegree) 
+        {{graph <gdb:topology> {{?s ?p <node:{0}>}}}}
 
         """
-        nodeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', nodeID)
-        queryToExecute = QUERY_INDEGREE_UPDATE.format(nodeID)        
+        node = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', node)
+        queryToExecute = QUERY_INDEGREE_UPDATE.format(node)        
         self.connection.urika.update(self.name, queryToExecute)
 
     def update_outdegree_info_all(self):
@@ -900,73 +900,73 @@ class GraphDatabase:
         }"""
         self.connection.urika.update(self.name, queryToExecute)
 
-    def add_node_properties(self, nodeID, properties, execute = True):
+    def add_node_properties(self, node, properties, execute = True):
         queryToExecute = ""
         if properties ==True:
             return queryToExecute
         for key in properties.keys():
-            queryToExecute += "\n"+ self.add_node_property(nodeID, key, properties[key], False, execute)
+            queryToExecute += "\n"+ self.add_node_property(node, key, properties[key], False, execute)
         return queryToExecute
 
-    def add_edge(self, fromNodeID, toNodeID, edgeType=None, fromNodeType=None, toNodeType=None, properties = None, execute = True, create_node = False, bidirectional = False, noReturn = False, gdbinfo_update = False):
+    def add_edge(self, fromnode, tonode, edgeType=None, fromNodeType=None, toNodeType=None, properties = None, execute = True, create_node = False, bidirectional = False, noReturn = False, gdbinfo_update = False):
         
         queryToExecute = ""
         if create_node ==True:
-            queryToExecute+="\n"+self.add_node(fromNodeID, fromNodeType, execute, gdbinfo_update = gdbinfo_update)
-            queryToExecute+="\n"+self.add_node(toNodeID, toNodeType, execute, gdbinfo_update = gdbinfo_update)
+            queryToExecute+="\n"+self.add_node(fromnode, fromNodeType, execute, gdbinfo_update = gdbinfo_update)
+            queryToExecute+="\n"+self.add_node(tonode, toNodeType, execute, gdbinfo_update = gdbinfo_update)
 
         ADD_AN_EDGE_QUERY = """
         
             INSERT {{ GRAPH <gdb:topology> 
                 
-                {{?fromNodeID ?edgeID ?toNodeID}}}} 
+                {{?fromnode ?edge ?tonode}}}} 
                 
                 WHERE {{
                 
                     SELECT 
-                    (<nodeID:{0}> AS ?fromNodeID) 
-                    (URI(CONCAT("edgeID:",str(?max))) AS ?edgeID) 
-                    (<nodeID:{1}> AS ?toNodeID) WHERE {{
+                    (<node:{0}> AS ?fromnode) 
+                    (URI(CONCAT("edge:",str(?max))) AS ?edge) 
+                    (<node:{1}> AS ?tonode) WHERE {{
                     
-                    {{GRAPH <gdb:info> {{<gdb:edgeIDCounter> <rel:equals> ?max}}}}
+                    {{GRAPH <gdb:info> {{<gdb:edgecounter> <rel:equals> ?max}}}}
                 
                 }}              
             }};
 
             INSERT {{
-                GRAPH <gdb:elist> {{?edgeID <rel:hasEdgeType> <edgeType:{2}>}}
+                GRAPH <gdb:elist> {{?edge <rel:hasEdgeType> <edgeType:{2}>}}
             }}
             WHERE {{
-               SELECT (URI(CONCAT("edgeID:",str(?count))) AS ?edgeID) 
-               {{graph <gdb:info>{{<gdb:edgeIDCounter> <rel:equals> ?count.}}}}
+               SELECT (URI(CONCAT("edge:",str(?count))) AS ?edge) 
+               {{graph <gdb:info>{{<gdb:edgecounter> <rel:equals> ?count.}}}}
             }};
 
             DELETE {{
-                GRAPH <gdb:info> {{<gdb:edgeIDCounter> <rel:equals> ?count.}}
+                GRAPH <gdb:info> {{<gdb:edgecounter> <rel:equals> ?count.}}
             }}
             INSERT {{
-                GRAPH <gdb:info> {{<gdb:edgeIDCounter> <rel:equals> ?newcount.}}
+                GRAPH <gdb:info> {{<gdb:edgecounter> <rel:equals> ?newcount.}}
             }}
             WHERE {{
-               {{GRAPH <gdb:info>{{<gdb:edgeIDCounter> <rel:equals> ?count.}}}}
+               {{GRAPH <gdb:info>{{<gdb:edgecounter> <rel:equals> ?count.}}}}
                BIND ((?count + 1) AS ?newcount)
             }};
 
         """
 
-        fromNodeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', fromNodeID).strip()
-        toNodeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', toNodeID).strip()
-        queryToExecute +=ADD_AN_EDGE_QUERY.format(fromNodeID, toNodeID, edgeType)
+        fromnode = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', fromnode).strip()
+        tonode = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', tonode).strip()
+        queryToExecute +=ADD_AN_EDGE_QUERY.format(fromnode, tonode, edgeType)
         
         if bidirectional==True:
-            queryToExecute +=ADD_AN_EDGE_QUERY.format(toNodeID, fromNodeID, edgeType)
+            queryToExecute +=ADD_AN_EDGE_QUERY.format(tonode, fromnode, edgeType)
     
         if execute == True:
             self.connection.urika.update(self.name, queryToExecute)
 
         if noReturn == False:
             GET_LAST_INSERTED_ID = """
-            select ((?cnt-1) as ?lastID) {graph <gdb:info> {<gdb:edgeIDCounter> <rel:equals> ?cnt}}
+            select ((?cnt-1) as ?lastID) {graph <gdb:info> {<gdb:edgecounter> <rel:equals> ?cnt}}
             """
             results = self.connection.urika.query(self.name, GET_LAST_INSERTED_ID, None, None, 'json', True)
             
@@ -978,23 +978,23 @@ class GraphDatabase:
         if properties != None:
             queryToExecute+= "\n"+ self.add_edge_properties(lastUpdatedID, properties, execute)
 
-        addResult = {'query': queryToExecute, 'edgeId': lastUpdatedID}
+        addResult = {'query': queryToExecute, 'edge': lastUpdatedID}
 
         return addResult
         
      
-    def add_edge_property(self, edgeID, key, val, forceToString = False, execute = True):
+    def add_edge_property(self, edge, key, val, forceToString = False, execute = True):
 
         ADD_A_PROPERTY_QUERY = """
             DELETE  {{
-                GRAPH <gdb:elist> {{<edgeID:{0}>  <property:{1}> ?any.}}
+                GRAPH <gdb:elist> {{<edge:{0}>  <property:{1}> ?any.}}
             }} WHERE 
             {{
-                GRAPH <gdb:elist> {{<edgeID:{0}>  <property:{1}> ?any.}}
+                GRAPH <gdb:elist> {{<edge:{0}>  <property:{1}> ?any.}}
             }}
             ;
             INSERT {{
-                GRAPH <gdb:elist> {{<edgeID:{0}>  <property:{1}> {2}.}}
+                GRAPH <gdb:elist> {{<edge:{0}>  <property:{1}> {2}.}}
             }}
             WHERE {{
                
@@ -1007,13 +1007,13 @@ class GraphDatabase:
         if self.is_number(val)==False or forceToString==True:
             val = "\""+str(val)+"\""
 
-        queryToExecute = ADD_A_PROPERTY_QUERY.format(edgeID, key, val)
+        queryToExecute = ADD_A_PROPERTY_QUERY.format(edge, key, val)
         if execute ==True:
             self.connection.urika.update(self.name, queryToExecute)
 
         return queryToExecute
 
-    def get_path(self, startNodeID, endNodeID, path_len=1):
+    def get_path(self, startnode, endnode, path_len=1):
 
         GET_PATH_HEADER = "?hop0_n"
         for i in range(1, path_len+1):
@@ -1023,12 +1023,12 @@ class GraphDatabase:
         
         GET_PATH_TAIL = """}}
 
-        filter (?hop0_n=<nodeID:{0}>)
-        filter (?hop{2}_n=<nodeID:{1}>)
+        filter (?hop0_n=<node:{0}>)
+        filter (?hop{2}_n=<node:{1}>)
 
         }}"""
 
-        GET_PATH_TAIL = GET_PATH_TAIL.format(startNodeID, endNodeID, path_len)
+        GET_PATH_TAIL = GET_PATH_TAIL.format(startnode, endnode, path_len)
 
         if path_len <1:
             path_len = 1
@@ -1048,27 +1048,27 @@ class GraphDatabase:
             path = []            
             for i in range(0, path_len):
                 startNode = str(result['hop'+str(i)+'_n']['value'])
-                edgeID = str(result['hop'+str(i+1)]['value'])
+                edge = str(result['hop'+str(i+1)]['value'])
                 endNode = str(result['hop'+str(i+1)+'_n']['value'])
-                path.append((startNode[7:],edgeID[7:],endNode[7:]))
+                path.append((startNode[7:],edge[7:],endNode[7:]))
             path_list.append(path)
         
         return path_list
 
-    def get_edge(self, edgeID):
+    def get_edge(self, edge):
         
         GET_EDGE = """
         
-        select ?rel ?val {{graph <gdb:elist> {{<edgeID:{0}> ?rel ?val}}}}
+        select ?rel ?val {{graph <gdb:elist> {{<edge:{0}> ?rel ?val}}}}
 
         """
         
-        edgeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', edgeID).strip()
-        queryToExecute = GET_EDGE.format(edgeID)
+        edge = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', edge).strip()
+        queryToExecute = GET_EDGE.format(edge)
         
         results = self.connection.urika.query(self.name, queryToExecute, None, None, 'json', True)
         
-        edge = {"edgeID": edgeID}
+        edge = {"edge": edge}
 
         for result in results['results']['bindings']:
             rel = str(result['rel']['value'])
@@ -1082,13 +1082,13 @@ class GraphDatabase:
                     edge[rel[9:]] = str(val)
         return edge
 
-    def get_label(self, nodeID, key):
+    def get_label(self, node, key):
         
         GET_LABEL = """
         
-        select ?val {{graph <gdb:label> {{<nodeID:{0}> <label:{1}> ?val}}}}
+        select ?val {{graph <gdb:label> {{<node:{0}> <label:{1}> ?val}}}}
         """
-        queryToExecute = GET_LABEL.format(nodeID, key)
+        queryToExecute = GET_LABEL.format(node, key)
         #print queryToExecute
         results = self.connection.urika.query(self.name, queryToExecute, None, None, 'json', True)
         count = 0
@@ -1097,7 +1097,7 @@ class GraphDatabase:
         
         return val
             
-    def get_node_id_with_label(self, key, val = None, forceToString = False, limit = -1, offset = -1):
+    def get_node_with_label(self, key, val = None, forceToString = False, limit = -1, offset = -1):
         
         GET_NODE = """
         
@@ -1126,29 +1126,29 @@ class GraphDatabase:
         queryToExecute = GET_NODE.format(key, val, LIMIT_CLAUSE = limitClause, OFFSET_CLAUSE = offsetClause)
         #print queryToExecute
         results = self.connection.urika.query(self.name, queryToExecute, None, None, 'json', True)
-        nodeIDs = []
+        nodes = []
         count = 0
         for result in results['results']['bindings']:
-            nodeID = str(result['node']['value'])[7:]
-            nodeIDs.append(nodeID)
+            node = str(result['node']['value'])[7:]
+            nodes.append(node)
            
 
-        return nodeIDs
+        return nodes
 
-    def get_node(self, nodeID):
+    def get_node(self, node):
         
         GET_NODE = """
         
-        select ?rel ?val {{graph <gdb:vlist> {{<nodeID:{0}> ?rel ?val}}}}
+        select ?rel ?val {{graph <gdb:vlist> {{<node:{0}> ?rel ?val}}}}
 
         """
         
-        nodeID = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', nodeID).strip()
-        queryToExecute = GET_NODE.format(nodeID)
+        node = re.sub('[^a-zA-Z0-9/_\\-:\\s]', '', node).strip()
+        queryToExecute = GET_NODE.format(node)
         
         results = self.connection.urika.query(self.name, queryToExecute, None, None, 'json', True)
         
-        node = {"nodeID": nodeID}
+        node = {"node": node}
 
         for result in results['results']['bindings']:
             rel = str(result['rel']['value'])
@@ -1182,12 +1182,12 @@ class GraphDatabase:
 
         return count
     
-    def get_label_num(self, key, val=None, nodeID=None, forceToString = False):
+    def get_label_num(self, key, val=None, node=None, forceToString = False):
         
-        if nodeID == None:
-            nodeID = "?s"
+        if node == None:
+            node = "?s"
         else:
-            nodeID = "<nodeID:"+str(nodeID)+">"
+            node = "<node:"+str(node)+">"
 
         GET_LABEL_NUM = """
         
@@ -1202,7 +1202,7 @@ class GraphDatabase:
             if self.is_number(val)==False or forceToString==True:
                 val = "\""+str(val)+"\""
 
-        queryToExecute = GET_LABEL_NUM.format(nodeID, key, val)
+        queryToExecute = GET_LABEL_NUM.format(node, key, val)
         #print queryToExecute
         results = self.connection.urika.query(self.name, queryToExecute, None, None, 'json', True)
         
@@ -1212,17 +1212,17 @@ class GraphDatabase:
         return count
 
 
-    def add_edge_properties(self, edgeID, properties, execute = True):
+    def add_edge_properties(self, edge, properties, execute = True):
         queryToExecute = ""
         if properties ==False:
             return queryToExecute        
         for key in properties.keys():
-            queryToExecute += "\n"+self.add_edge_property(edgeID, key, properties[key], False, execute)      
+            queryToExecute += "\n"+self.add_edge_property(edge, key, properties[key], False, execute)      
         return queryToExecute
 
     # graph algorithms
 
-    def get_node_ids_by_label_comparison(self, key_1, key_2, operand, limit = -1):
+    def get_nodes_by_label_comparison(self, key_1, key_2, operand, limit = -1):
         
         LABEL_COMPARISON = """
                 select ?s {{
@@ -1241,13 +1241,13 @@ class GraphDatabase:
         queryToExecute = LABEL_COMPARISON.format(key_1, key_2, operand, LIMIT_CLAUSE = limitClause)
         #print queryToExecute
         results = self.connection.urika.query(self.name, queryToExecute, None, None, 'json', True)
-        nodeIDs = []
+        nodes = []
         count = 0
         for result in results['results']['bindings']:
-            nodeID = str(result['s']['value'])[7:]
-            nodeIDs.append(nodeID)
+            node = str(result['s']['value'])[7:]
+            nodes.append(node)
         
-        return nodeIDs
+        return nodes
 
     def store_labels_to_file(self, filePath, key, append = False, orderBy = 0):
 
@@ -1401,14 +1401,14 @@ class GraphDatabase:
             filePath = "result/pp_"+str(time.time()) + '.txt'
             self.store_labels_to_file(filePath, "is_in_cluster", append = False, orderBy=1)
 
-    def single_source_shortest_path(self, startNodeID, maxIteration = 10, toFile = False):
+    def single_source_shortest_path(self, startnode, maxIteration = 10, toFile = False):
         print ""
         self.clear_labels("distance") 
         print " - msg: Performing single source shortest path..."
 
         iteration_no = 0
         self.add_node_label_all_nodes("distance", 9999)
-        self.add_node_label(startNodeID, "distance", iteration_no)
+        self.add_node_label(startnode, "distance", iteration_no)
         while True:
             startTime = time.time()     
             print " - msg: iteration no: " + str(iteration_no)
@@ -1427,10 +1427,10 @@ class GraphDatabase:
         
         return iteration_no
 
-    def eccentricity(self, startNodeID, maxIteration = 10, toFile = False):
+    def eccentricity(self, startnode, maxIteration = 10, toFile = False):
         print ""
         print " - msg: Computing eccentricity..."
-        eccentricity = self.single_source_shortest_path(startNodeID, maxIteration, toFile = False)
+        eccentricity = self.single_source_shortest_path(startnode, maxIteration, toFile = False)
         
         if toFile == True:
             filePath = "result/ec_"+str(time.time()) + '.txt'
@@ -1444,14 +1444,14 @@ class GraphDatabase:
         # returns eccentricity  
         return eccentricity
 
-    def multi_source_shortest_path(self, startNodeID, endNodeID, maxIteration = 10, toFile = False):
+    def multi_source_shortest_path(self, startnode, endnode, maxIteration = 10, toFile = False):
         print ""
         self.clear_labels_all() 
         print " - msg: Performing multi source shortest path..."
 
         iteration_no = 0
         self.add_node_label_all_nodes("distance", 9999)
-        self.add_node_label(startNodeID, "distance", iteration_no)
+        self.add_node_label(startnode, "distance", iteration_no)
         while True:
             startTime = time.time()     
             print " - msg: iteration no: " + str(iteration_no)
@@ -1463,7 +1463,7 @@ class GraphDatabase:
                 distance = 9999
                 break
 
-            num_arrived_at_endNode =  self.get_label_num(nodeID=endNodeID, key="distance", val = iteration_no+1)
+            num_arrived_at_endNode =  self.get_label_num(node=endnode, key="distance", val = iteration_no+1)
             if num_arrived_at_endNode >0:
                 distance = iteration_no + 1
                 break
@@ -1473,13 +1473,13 @@ class GraphDatabase:
         paths = []
 
         if distance > 0 and distance < 9999:
-            paths = self.get_path(startNodeID, endNodeID, path_len=distance)
+            paths = self.get_path(startnode, endnode, path_len=distance)
     
         if toFile == True:
             filePath = "result/mssp_"+str(time.time()) + '.txt'
-            print " - msg: The shortest distance between two nodes ("+startNodeID+" and "+endNodeID+") = " +str(distance) + " written in file: "+ filePath
+            print " - msg: The shortest distance between two nodes ("+startnode+" and "+endnode+") = " +str(distance) + " written in file: "+ filePath
             f = open(filePath, 'w')
-            f.write("distance between two nodes ("+startNodeID+" and "+endNodeID+") is :" +str(distance)+"\n")
+            f.write("distance between two nodes ("+startnode+" and "+endnode+") is :" +str(distance)+"\n")
             for path in paths:
                 f.write(str(path)+"\n")
             f.close()
