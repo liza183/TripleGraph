@@ -1,4 +1,3 @@
-# This project is experimental
 # Property Graph Programming Interface for Triplestores
 # Programmed by Sangkeun Lee (leesangkeun@gmail.com)
 
@@ -12,7 +11,7 @@ import random
 
 logging.basicConfig(level = logging.CRITICAL)
 
-class GraphDB:    
+class TripleGraph:    
 
     def query(self, query_str):
         self.connection.setQuery(query_str)
@@ -738,10 +737,10 @@ class GraphDB:
 
         print " - msg: Graph cleared ..."
 
-    def init_graph(self):
+    def init_graph(self, endpoint_url="http://localhost:3030/ds"):
 
         print " - msg: Initializing the graph ..."
-        self.connection = SPARQLWrapper("http://localhost:3030/ds")
+        self.connection = SPARQLWrapper(endpoint_url)
         self.name = "gdb"
 
     def add_node(self, nodeID, nodeType=None, properties = None, execute = True, gdbinfo_update = True):

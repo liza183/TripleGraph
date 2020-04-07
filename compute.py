@@ -1,13 +1,25 @@
 #!/usr/bin/python
 
-from graphka import GraphDB
+from triplegraph import TripleGraph
+
+import argparse
+
+parser = argparse.ArgumentParser(description='Running Graph Mining Algorithms')
+parser.add_argument('--endpoint')
+
+args = parser.parse_args()
+print(args)
+
 
 if __name__ == '__main__':
     
-    gdb = GraphDB()
+    gdb = TripleGraph()
     print ""
-    gdb.init_graph()
-        
+    if args.endpoint is not None:
+        gdb.init_graph(endpoint_url = args.endpoint)
+    else:
+        gdb.init_graph()
+            
     gdb.eccentricity("12", maxIteration = 30, toFile = True)
     gdb.personalized_pagerank(personalization = {1:0.5, 3:0.2, 5:0.1}, toFile = True, maxIteration = 50)
     gdb.pagerank(toFile = True, maxIteration = 50)
