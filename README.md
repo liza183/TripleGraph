@@ -1,6 +1,6 @@
 # TripleGraph
 
-* TripleGraph is a graph analysis toolkit for creating, manipulating, mining, and programmining with large scale property graphs, which uses a RDF tripletore as its backend.
+* TripleGraph is a graph analysis toolkit, which uses a RDF tripletore as its backend, for creating, manipulating, mining, and programming with large scale property graphs
 * Although primarily developed for Cray's Urika-GD system hosted at the Department of Energy's Oak Ridge National Laboratory, this open source version works on Apache Jena Fuseki/TDB triplestore. 
 
 # Main functionalities:
