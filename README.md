@@ -120,5 +120,5 @@ $ ./compute.py
  - msg: 15 results written in file: result/pp_1586275434.84.txt
 ```
 # License
-
+* MIT License
 * Please contact Matt Sangkeun Lee for more information: lees4@ornl.gov
