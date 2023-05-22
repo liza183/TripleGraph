@@ -6,7 +6,7 @@
 rdflib == 4.2.2
 
 # src/solarpy/yarc/urika.py: 19
-requests == 2.23.0
+requests == 2.31.0
 
 # src/PLUS.py: 58
 sparqlwrapper == 1.8.5
